@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Nossa rotina da casa</title>
+<script>try{var t=localStorage.getItem("rotina-tema");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&family=Dancing+Script:wght@600;700&family=Nunito+Sans:wght@400;600;700&family=Lora:ital@0;1&display=swap" rel="stylesheet">
@@ -28,6 +29,8 @@
     --line:#4a433d; --row:#2a2522; --card-g:#2c3529; --card-p:#3d2b27; --white:#2c2723; --magnet:#4a2f2a;
   }
 }
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .ink-stroke{stroke:#e9cdbd}}
+:root[data-theme="dark"] .ink-stroke{stroke:#e9cdbd}
 :root[data-theme="dark"]{
   --bg:#1d1a18; --paper:#24201d; --ink:#e9efe4; --text:#ece6e0; --muted:#b0a69d;
   --brown:#f2c9b6; --green:#33402f; --green-d:#a9c79c; --pink:#4a2f2a; --pink-2:#5a3a33;
@@ -37,6 +40,14 @@ html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:16px;line-height:1.35}
 .page{max-width:1060px;margin:0 auto;padding:18px 18px 40px;background:var(--paper)}
+
+/* Tema */
+.theme-bar{display:flex;justify-content:flex-end;margin-bottom:6px}
+.theme{display:inline-flex;border:1.5px solid var(--line);border-radius:999px;padding:3px;background:var(--white);gap:2px}
+.theme button{font:inherit;font-size:14px;font-weight:700;border:0;background:transparent;color:var(--muted);border-radius:999px;padding:5px 12px;cursor:pointer}
+.theme button[aria-pressed="true"]{background:var(--green);color:var(--ink)}
+.theme button:focus-visible{outline:3px solid var(--green-d);outline-offset:1px}
+@media print{.theme-bar{display:none}}
 
 /* Header */
 header{display:grid;grid-template-columns:200px 1fr 230px;align-items:center;gap:8px;margin-bottom:14px}
@@ -61,7 +72,7 @@ h1{font-family:var(--font-title);font-weight:600;color:var(--ink);font-size:clam
 .badge{display:inline-block;font-size:13px;font-weight:700;border-radius:999px;padding:3px 10px;margin-top:4px}
 .badge.auto{background:var(--green);color:var(--ink)}
 .badge.manual{background:var(--pink-2);color:var(--brown)}
-.badge.other{background:#fff3c4;color:#5a4500}
+
 
 /* Table */
 .tbl-wrap{border:1.5px solid var(--ink);border-radius:12px;overflow:hidden;background:var(--white)}
@@ -161,6 +172,13 @@ textarea{width:100%;font:inherit;font-size:15px;border:1.5px solid var(--line);b
 </head>
 <body>
 <div class="page">
+<div class="theme-bar">
+  <div class="theme" role="group" aria-label="Aparência">
+    <button type="button" data-t="auto">Automático</button>
+    <button type="button" data-t="light">Claro</button>
+    <button type="button" data-t="dark">Escuro</button>
+  </div>
+</div>
 
 <header>
   <svg class="h-left" viewBox="0 0 200 160" aria-hidden="true">
@@ -174,7 +192,7 @@ textarea{width:100%;font:inherit;font-size:15px;border:1.5px solid var(--line);b
       <ellipse cx="166" cy="96" rx="7" ry="15" transform="rotate(-35 166 96)"/><ellipse cx="186" cy="110" rx="7" ry="15" transform="rotate(40 186 110)"/>
       <ellipse cx="170" cy="126" rx="6" ry="13" transform="rotate(-45 170 126)"/>
     </g>
-    <g fill="none" stroke="#5a3523" stroke-width="5" stroke-linejoin="round" stroke-linecap="round">
+    <g class="ink-stroke" fill="none" stroke="#5a3523" stroke-width="5" stroke-linejoin="round" stroke-linecap="round">
       <path d="M48 78 L100 30 L152 78"/><path d="M60 68 V140 H140 V68"/><path d="M128 50 V30 H140 V60"/>
     </g>
     <path d="M100 124 C78 108 74 92 84 86 C92 81 98 86 100 92 C102 86 108 81 116 86 C126 92 122 108 100 124Z" fill="#f2b8ad" stroke="#5a3523" stroke-width="4" stroke-linejoin="round"/>
@@ -259,7 +277,7 @@ textarea{width:100%;font:inherit;font-size:15px;border:1.5px solid var(--line);b
 
   <section class="card p">
     <h2><span class="dash" style="color:var(--heart)">⁼</span>REGRA DA CASA
-      <svg width="54" height="44" viewBox="0 0 54 44" aria-hidden="true"><g fill="none" stroke="#5a3523" stroke-width="3" stroke-linejoin="round"><path d="M4 22 L27 4 L50 22"/><path d="M10 18 V40 H44 V18"/></g><path d="M27 34 C18 27 17 21 21 19 C24 17 26 19 27 22 C28 19 30 17 33 19 C37 21 36 27 27 34Z" fill="#e07d74"/></svg>
+      <svg width="54" height="44" viewBox="0 0 54 44" aria-hidden="true"><g class="ink-stroke" fill="none" stroke="#5a3523" stroke-width="3" stroke-linejoin="round"><path d="M4 22 L27 4 L50 22"/><path d="M10 18 V40 H44 V18"/></g><path d="M27 34 C18 27 17 21 21 19 C24 17 26 19 27 22 C28 19 30 17 33 19 C37 21 36 27 27 34Z" fill="#e07d74"/></svg>
     </h2>
     <div class="rule">A tarefa só é considerada feita quando estiver concluída por completo.</div>
     <div class="rule">Se uma não puder cumprir uma responsabilidade naquela semana, vocês podem fazer uma troca de tarefas, em vez da responsabilidade simplesmente passar para a outra.</div>
@@ -469,6 +487,18 @@ let tt;function toast(m){const el=$("toast");el.textContent=m;el.classList.add("
 /* virada de semana com a página aberta */
 let lastCur=curIdx();
 setInterval(()=>{const c=curIdx();if(c!==lastCur){if(viewIdx===lastCur)viewIdx=c;lastCur=c;render();}},60000);
+
+/* tema */
+function applyTheme(t){
+  const root=document.documentElement;
+  if(t==="light"||t==="dark")root.setAttribute("data-theme",t);else root.removeAttribute("data-theme");
+  document.querySelectorAll(".theme button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.t===t)));
+}
+let tema="auto";try{tema=localStorage.getItem("rotina-tema")||"auto";}catch(e){}
+applyTheme(tema);
+document.querySelectorAll(".theme button").forEach(b=>b.addEventListener("click",()=>{
+  tema=b.dataset.t;try{localStorage.setItem("rotina-tema",tema);}catch(e){}applyTheme(tema);
+}));
 
 loadLocal();render();
 
