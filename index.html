@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Nossa rotina da casa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&family=Dancing+Script:wght@600;700&family=Nunito+Sans:wght@400;600;700&family=Lora:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#fbf6f1; --paper:#fdf9f5; --ink:#1f2a22; --text:#2b2b2b; --muted:#6c6560;
+  --brown:#4a2a1c; --green:#dfe6d6; --green-d:#5d7a52; --pink:#fbe1d9; --pink-2:#f9d4ca;
+  --heart:#e07d74; --heart-l:#f0a7a6; --spark:#d9a06a; --line:#cfc7bf; --row:#f7f1ea;
+  --card-g:#e7ede1; --card-p:#fbe5dd; --white:#fffdfb; --magnet:#fbe1d9;
+  --font-title:"Oswald","Arial Narrow",Arial,sans-serif;
+  --font-script:"Dancing Script","Brush Script MT",cursive;
+  --font-body:"Nunito Sans","Segoe UI",Arial,sans-serif;
+  --font-serif:"Lora",Georgia,serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#1d1a18; --paper:#24201d; --ink:#e9efe4; --text:#ece6e0; --muted:#b0a69d;
+    --brown:#f2c9b6; --green:#33402f; --green-d:#a9c79c; --pink:#4a2f2a; --pink-2:#5a3a33;
+    --line:#4a433d; --row:#2a2522; --card-g:#2c3529; --card-p:#3d2b27; --white:#2c2723; --magnet:#4a2f2a;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#1d1a18; --paper:#24201d; --ink:#e9efe4; --text:#ece6e0; --muted:#b0a69d;
+  --brown:#f2c9b6; --green:#33402f; --green-d:#a9c79c; --pink:#4a2f2a; --pink-2:#5a3a33;
+  --line:#4a433d; --row:#2a2522; --card-g:#2c3529; --card-p:#3d2b27; --white:#2c2723; --magnet:#4a2f2a;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:16px;line-height:1.35}
+.page{max-width:1060px;margin:0 auto;padding:18px 18px 40px;background:var(--paper)}
+
+/* Header */
+header{display:grid;grid-template-columns:200px 1fr 230px;align-items:center;gap:8px;margin-bottom:14px}
+header svg{max-width:100%;height:auto;display:block}
+.head-center{text-align:center}
+h1{font-family:var(--font-title);font-weight:600;color:var(--ink);font-size:clamp(30px,5.4vw,58px);line-height:1;margin:0;letter-spacing:.5px}
+.names-pill{display:inline-flex;align-items:center;gap:14px;background:var(--pink);border-radius:999px;padding:4px 26px;margin:10px 0 6px}
+.names-pill span.n{font-family:var(--font-script);font-weight:700;color:var(--brown);font-size:clamp(26px,4vw,40px);line-height:1.1}
+.names-pill .h{color:var(--heart);font-size:20px}
+.tagline{font-family:var(--font-serif);font-size:17px;color:var(--text);margin:0}
+
+/* Week panel */
+.week{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;border:1.5px solid var(--ink);border-radius:12px;padding:10px 14px;margin:0 0 14px;background:var(--white)}
+.week-nav{display:flex;gap:6px}
+.btn{font:inherit;font-weight:700;font-size:14px;border:1.5px solid var(--line);background:var(--paper);color:var(--text);border-radius:9px;padding:6px 12px;cursor:pointer}
+.btn:hover{border-color:var(--green-d)}
+.btn:focus-visible,.magnet:focus-visible,.check input:focus-visible+span{outline:3px solid var(--green-d);outline-offset:2px}
+.btn.primary{background:var(--green);border-color:var(--green-d)}
+.week-info{flex:1;min-width:220px}
+.week-range{font-family:var(--font-title);font-size:22px;color:var(--ink);line-height:1.1}
+.week-sub{font-size:14px;color:var(--muted)}
+.badge{display:inline-block;font-size:13px;font-weight:700;border-radius:999px;padding:3px 10px;margin-top:4px}
+.badge.auto{background:var(--green);color:var(--ink)}
+.badge.manual{background:var(--pink-2);color:var(--brown)}
+.badge.other{background:#fff3c4;color:#5a4500}
+
+/* Table */
+.tbl-wrap{border:1.5px solid var(--ink);border-radius:12px;overflow:hidden;background:var(--white)}
+table{width:100%;border-collapse:collapse}
+thead th{font-family:var(--font-title);font-weight:500;font-size:22px;color:var(--ink);padding:12px 10px;border-right:1px solid var(--line);border-bottom:1.5px solid var(--ink)}
+thead th:last-child{border-right:0;font-size:18px}
+th.c1{background:var(--green)} th.c2{background:var(--pink)} th.c3{background:var(--green)} th.c4{background:var(--pink)}
+tbody td{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:10px 14px;vertical-align:middle}
+tbody td:last-child{border-right:0;padding:6px 10px}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:nth-child(even){background:var(--row)}
+td.act{font-weight:700;font-size:20px;color:var(--ink);width:22%}
+td.when{font-size:17px;width:17%}
+td.done{font-size:15.5px;width:36%}
+td.resp{width:25%}
+
+.magnet{position:relative;width:100%;min-height:50px;border:1.5px solid var(--line);border-radius:12px;background:var(--magnet);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;padding:4px 10px;font:inherit;color:var(--brown);box-shadow:0 2px 0 rgba(74,42,28,.12)}
+.magnet:hover{border-color:var(--heart)}
+.magnet .nm{font-family:var(--font-script);font-weight:700;font-size:28px;line-height:1}
+.magnet svg{flex:none}
+.magnet.changed::after{content:"alterado";position:absolute;top:-8px;right:8px;font-family:var(--font-body);font-size:11px;font-weight:700;background:var(--brown);color:var(--paper);border-radius:999px;padding:1px 7px}
+
+/* Bottom cards */
+.bottom{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}
+.card{border-radius:16px;padding:16px 20px;position:relative;overflow:hidden}
+.card.g{background:var(--card-g)} .card.p{background:var(--card-p)}
+.card h2{font-family:var(--font-title);font-weight:600;font-size:clamp(28px,4vw,40px);color:var(--ink);margin:0 0 10px;display:flex;align-items:center;gap:10px}
+.dash{color:var(--ink);font-weight:400}
+.check{display:flex;align-items:center;gap:12px;font-size:19px;padding:5px 0;cursor:pointer;position:relative;z-index:1}
+.check input{position:absolute;opacity:0;width:1px;height:1px}
+.check span.box{width:26px;height:26px;border:2px solid var(--ink);border-radius:7px;background:var(--white);display:grid;place-items:center;flex:none}
+.check input:checked+span.box{background:var(--green-d);border-color:var(--green-d)}
+.check input:checked+span.box::after{content:"";width:7px;height:13px;border:solid #fff;border-width:0 3px 3px 0;transform:rotate(45deg) translate(-1px,-1px)}
+.check input:checked~span.lbl{text-decoration:line-through;color:var(--muted)}
+.checklist{background:var(--white);border-radius:12px;padding:8px 14px;max-width:440px}
+.check-date{font-size:13px;color:var(--muted);margin:8px 0 0}
+.rule{background:var(--white);border-radius:12px;padding:10px 16px;font-size:17.5px;margin-bottom:10px;position:relative;z-index:1;max-width:88%}
+.deco-cat{position:absolute;right:6px;bottom:4px;width:200px;opacity:.95;pointer-events:none}
+.deco-plant{position:absolute;right:8px;bottom:6px;width:56px;pointer-events:none}
+
+/* Log */
+.log{margin-top:22px;border:1.5px solid var(--line);border-radius:12px;background:var(--white)}
+.log summary{cursor:pointer;padding:12px 16px;font-family:var(--font-title);font-size:22px;color:var(--ink);list-style:none;display:flex;justify-content:space-between;align-items:center}
+.log summary::-webkit-details-marker{display:none}
+.log-body{padding:0 16px 14px}
+.log-list{list-style:none;margin:0;padding:0;max-height:380px;overflow:auto}
+.log-list li{border-top:1px solid var(--line);padding:9px 2px;font-size:15px}
+.log-list li.here{background:var(--pink);border-radius:8px;padding-left:8px}
+.log-meta{color:var(--muted);font-size:13px}
+.empty{color:var(--muted);font-size:15px;padding:8px 0}
+.sync{font-size:13px;color:var(--muted);margin-top:10px;text-align:center}
+
+/* Dialog */
+dialog{border:0;border-radius:16px;padding:0;max-width:440px;width:calc(100% - 32px);background:var(--paper);color:var(--text)}
+dialog::backdrop{background:rgba(30,20,15,.45)}
+.dlg{padding:20px}
+.dlg h3{font-family:var(--font-title);font-weight:500;font-size:24px;margin:0 0 4px;color:var(--ink)}
+.dlg p{margin:0 0 12px;color:var(--muted);font-size:14.5px}
+.who{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.who label{display:block;cursor:pointer}
+.who input{position:absolute;opacity:0}
+.who span{display:block;text-align:center;border:2px solid var(--line);border-radius:12px;padding:8px;font-family:var(--font-script);font-weight:700;font-size:28px;color:var(--brown);background:var(--magnet)}
+.who input:checked+span{border-color:var(--heart);box-shadow:0 0 0 3px var(--pink-2)}
+.who input:focus-visible+span{outline:3px solid var(--green-d)}
+.scope label{display:flex;gap:8px;align-items:flex-start;font-size:15px;margin-bottom:8px;cursor:pointer}
+.scope input{margin-top:3px}
+textarea{width:100%;font:inherit;font-size:15px;border:1.5px solid var(--line);border-radius:10px;padding:8px;background:var(--white);color:var(--text);resize:vertical;min-height:60px}
+.dlg-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;flex-wrap:wrap}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:10px;font-size:15px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:10}
+.toast.show{opacity:1}
+
+/* Mobile */
+@media (max-width:820px){
+  header{grid-template-columns:1fr;justify-items:center}
+  header .h-left{display:none}
+  header .h-right{width:170px;order:-1}
+  thead{display:none}
+  table,tbody,tr,td{display:block;width:100%!important}
+  tbody tr{border-bottom:1.5px solid var(--line);padding:10px 12px;display:grid;grid-template-columns:1fr auto;gap:2px 10px}
+  tbody tr:last-child{border-bottom:0}
+  tbody td{border:0!important;padding:2px 0!important}
+  td.act{grid-column:1;font-size:19px}
+  td.when{grid-column:1;font-size:14px;color:var(--muted)}
+  td.done{grid-column:1/-1;font-size:15px}
+  td.resp{grid-column:2;grid-row:1/3;width:150px!important}
+  .magnet .nm{font-size:24px}
+  .bottom{grid-template-columns:1fr}
+  .deco-cat{width:130px;opacity:.5}
+  .rule{max-width:100%}
+}
+@media print{
+  .week-nav,.log,.sync,.toast{display:none}
+  .page{max-width:none}
+}
+@media (prefers-reduced-motion:reduce){.toast{transition:none}}
+</style>
+</head>
+<body>
+<div class="page">
+
+<header>
+  <svg class="h-left" viewBox="0 0 200 160" aria-hidden="true">
+    <g fill="none" stroke="#6f8f63" stroke-width="3" stroke-linecap="round">
+      <path d="M22 140 C20 100 26 70 40 40"/><path d="M178 140 C182 110 176 90 168 70"/>
+    </g>
+    <g fill="#7e9c70">
+      <ellipse cx="18" cy="70" rx="7" ry="15" transform="rotate(-30 18 70)"/><ellipse cx="38" cy="58" rx="7" ry="15" transform="rotate(35 38 58)"/>
+      <ellipse cx="16" cy="98" rx="7" ry="15" transform="rotate(-40 16 98)"/><ellipse cx="34" cy="88" rx="7" ry="15" transform="rotate(40 34 88)"/>
+      <ellipse cx="24" cy="122" rx="6" ry="13" transform="rotate(-45 24 122)"/>
+      <ellipse cx="166" cy="96" rx="7" ry="15" transform="rotate(-35 166 96)"/><ellipse cx="186" cy="110" rx="7" ry="15" transform="rotate(40 186 110)"/>
+      <ellipse cx="170" cy="126" rx="6" ry="13" transform="rotate(-45 170 126)"/>
+    </g>
+    <g fill="none" stroke="#5a3523" stroke-width="5" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M48 78 L100 30 L152 78"/><path d="M60 68 V140 H140 V68"/><path d="M128 50 V30 H140 V60"/>
+    </g>
+    <path d="M100 124 C78 108 74 92 84 86 C92 81 98 86 100 92 C102 86 108 81 116 86 C126 92 122 108 100 124Z" fill="#f2b8ad" stroke="#5a3523" stroke-width="4" stroke-linejoin="round"/>
+    <g fill="#d9a06a"><circle cx="160" cy="22" r="4"/><circle cx="153" cy="15" r="2.5"/><circle cx="160" cy="11" r="2.5"/><circle cx="167" cy="15" r="2.5"/></g>
+  </svg>
+
+  <div class="head-center">
+    <h1>NOSSA ROTINA DA CASA</h1>
+    <div class="names-pill"><span class="h">♡</span><span class="n">Wanessa &amp; Izadora</span><span class="h">♡</span></div>
+    <p class="tagline">Dividir para nenhuma ficar sobrecarregada. <span style="color:var(--heart)">~♡</span></p>
+  </div>
+
+  <svg class="h-right" viewBox="0 0 230 170" aria-hidden="true">
+    <g fill="#7e9c70">
+      <ellipse cx="14" cy="120" rx="6" ry="13" transform="rotate(-30 14 120)"/><ellipse cx="22" cy="146" rx="6" ry="13" transform="rotate(30 22 146)"/>
+      <ellipse cx="214" cy="40" rx="6" ry="13" transform="rotate(30 214 40)"/><ellipse cx="206" cy="66" rx="6" ry="13" transform="rotate(-30 206 66)"/>
+    </g>
+    <!-- gato laranja -->
+    <g stroke="#3a2a22" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M40 170 C34 120 44 100 60 92 L54 58 L78 80 Q92 76 106 80 L128 58 L124 94 C138 104 140 130 132 170Z" fill="#fffaf4"/>
+      <path d="M54 58 L78 80 Q70 92 58 96Z" fill="#e8a467"/>
+      <path d="M44 150 C40 128 46 112 58 104 C50 120 50 140 54 160Z" fill="#e8a467" stroke="none"/>
+      <path d="M68 104 q6 -5 12 0 M98 104 q6 -5 12 0" fill="none"/>
+      <path d="M86 114 l3 3 l3 -3 M89 117 v3 q-4 4 -8 0 M89 120 q4 4 8 0" fill="none" stroke-width="2.4"/>
+    </g>
+    <ellipse cx="68" cy="118" rx="7" ry="4" fill="#f2b8ad"/><ellipse cx="112" cy="118" rx="7" ry="4" fill="#f2b8ad"/>
+    <!-- gato cinza -->
+    <g stroke="#3a2a22" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M118 170 C116 128 122 104 140 92 L136 52 L160 76 Q174 72 188 76 L208 52 L206 94 C222 106 224 134 216 170Z" fill="#8f9295"/>
+      <path d="M150 104 q6 -5 12 0 M182 104 q6 -5 12 0" fill="none"/>
+      <path d="M168 114 l3 3 l3 -3 M171 117 v3 q-4 4 -8 0 M171 120 q4 4 8 0" fill="none" stroke-width="2.4"/>
+      <path d="M168 80 l2 10 M176 80 l-1 10 M210 130 l10 -3 M210 142 l10 0" fill="none" stroke="#5e6164"/>
+    </g>
+    <ellipse cx="150" cy="118" rx="7" ry="4" fill="#f2b8ad"/><ellipse cx="194" cy="118" rx="7" ry="4" fill="#f2b8ad"/>
+    <path d="M196 26 C186 18 186 10 192 8 C196 6 198 10 198 12 C198 10 200 6 204 8 C210 10 210 18 196 26Z" fill="#f2b8ad"/>
+    <g fill="#d9a06a"><circle cx="150" cy="20" r="4"/><circle cx="143" cy="13" r="2.5"/><circle cx="150" cy="9" r="2.5"/><circle cx="157" cy="13" r="2.5"/></g>
+  </svg>
+</header>
+
+<section class="week" aria-label="Semana">
+  <div class="week-info">
+    <div class="week-range" id="weekRange">Carregando…</div>
+    <div class="week-sub" id="weekSub"></div>
+    <span class="badge auto" id="weekBadge">Distribuição automática</span>
+  </div>
+  <div class="week-nav">
+    <button class="btn" id="prevW" aria-label="Semana anterior">‹ Anterior</button>
+    <button class="btn primary" id="todayW">Semana atual</button>
+    <button class="btn" id="nextW" aria-label="Próxima semana">Próxima ›</button>
+  </div>
+</section>
+
+<div class="tbl-wrap">
+<table>
+  <thead><tr>
+    <th class="c1">ATIVIDADE</th><th class="c2">QUANDO</th><th class="c3">QUANDO ESTÁ CONCLUÍDA</th><th class="c4">RESPONSÁVEL DA SEMANA</th>
+  </tr></thead>
+  <tbody id="rows"></tbody>
+</table>
+</div>
+
+<div class="bottom">
+  <section class="card g">
+    <h2><span class="dash">⁼</span>TODO DIA, SEM EXCEÇÃO<span class="dash">⁼</span></h2>
+    <div class="checklist" id="daily"></div>
+    <p class="check-date" id="dailyDate"></p>
+    <svg class="deco-cat" viewBox="0 0 200 150" aria-hidden="true">
+      <g fill="#7e9c70"><ellipse cx="150" cy="40" rx="8" ry="20" transform="rotate(-25 150 40)"/><ellipse cx="172" cy="34" rx="8" ry="20" transform="rotate(25 172 34)"/><ellipse cx="160" cy="16" rx="7" ry="16"/></g>
+      <path d="M150 70 h26 l-4 26 h-18z" fill="#e8c9a8" stroke="#3a2a22" stroke-width="2"/>
+      <path d="M161 70 v-40" stroke="#5d7a52" stroke-width="3"/>
+      <g stroke="#3a2a22" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+        <path d="M30 140 C24 118 40 100 70 104 L130 96 C150 94 158 112 150 140Z" fill="#fffaf4"/>
+        <path d="M150 112 C170 100 174 80 168 70" fill="none"/>
+        <path d="M40 104 L34 76 L56 96 Q70 92 82 96 L98 76 L96 104 C100 124 80 136 66 136 C48 136 34 124 40 104Z" fill="#fffaf4"/>
+        <path d="M34 76 L56 96 Q46 104 38 104Z" fill="#7a6f68"/>
+        <path d="M110 100 q14 -6 24 4 v20 q-12 6 -24 0z" fill="#7a6f68"/>
+        <path d="M54 114 q5 -4 10 0 M74 114 q5 -4 10 0" fill="none"/>
+      </g>
+      <g stroke="#d9a06a" stroke-width="3" stroke-linecap="round"><path d="M12 112 h12 M14 98 l9 6 M14 126 l9 -6"/></g>
+    </svg>
+  </section>
+
+  <section class="card p">
+    <h2><span class="dash" style="color:var(--heart)">⁼</span>REGRA DA CASA
+      <svg width="54" height="44" viewBox="0 0 54 44" aria-hidden="true"><g fill="none" stroke="#5a3523" stroke-width="3" stroke-linejoin="round"><path d="M4 22 L27 4 L50 22"/><path d="M10 18 V40 H44 V18"/></g><path d="M27 34 C18 27 17 21 21 19 C24 17 26 19 27 22 C28 19 30 17 33 19 C37 21 36 27 27 34Z" fill="#e07d74"/></svg>
+    </h2>
+    <div class="rule">A tarefa só é considerada feita quando estiver concluída por completo.</div>
+    <div class="rule">Se uma não puder cumprir uma responsabilidade naquela semana, vocês podem fazer uma troca de tarefas, em vez da responsabilidade simplesmente passar para a outra.</div>
+    <svg class="deco-plant" viewBox="0 0 56 90" aria-hidden="true">
+      <g fill="#7e9c70"><ellipse cx="20" cy="30" rx="6" ry="14" transform="rotate(-25 20 30)"/><ellipse cx="36" cy="24" rx="6" ry="14" transform="rotate(25 36 24)"/><ellipse cx="28" cy="10" rx="5" ry="11"/></g>
+      <path d="M28 60 V14" stroke="#5d7a52" stroke-width="2.5"/>
+      <path d="M12 58 h32 l-5 30 h-22z" fill="#e8a467" stroke="#3a2a22" stroke-width="2"/>
+    </svg>
+  </section>
+</div>
+
+<details class="log" id="logBox">
+  <summary><span>Registro de alterações</span><span class="week-sub" id="logCount"></span></summary>
+  <div class="log-body">
+    <ul class="log-list" id="logList"></ul>
+  </div>
+</details>
+<p class="sync" id="sync"></p>
+</div>
+
+<dialog id="dlg">
+  <form class="dlg" method="dialog" id="dlgForm">
+    <h3 id="dlgTitle">Alterar responsável</h3>
+    <p id="dlgSub"></p>
+    <div class="who">
+      <label><input type="radio" name="who" value="W"><span>Wanessa</span></label>
+      <label><input type="radio" name="who" value="I"><span>Izadora</span></label>
+    </div>
+    <div class="scope">
+      <label><input type="radio" name="scope" value="week" checked> <span><b>Só nesta semana</b><br><small>Na semana seguinte o rodízio continua como estava.</small></span></label>
+      <label><input type="radio" name="scope" value="rot"> <span><b>Mudar o rodízio daqui em diante</b><br><small>Esta semana fica com quem você escolheu e as próximas alternam a partir dela.</small></span></label>
+    </div>
+    <textarea id="reason" placeholder="Motivo (opcional). Ex.: troca com Lavar louças"></textarea>
+    <div class="dlg-actions">
+      <button class="btn" type="button" id="resetBtn">Voltar ao automático</button>
+      <button class="btn" value="cancel" type="submit" formnovalidate>Cancelar</button>
+      <button class="btn primary" type="button" id="saveBtn">Salvar alteração</button>
+    </div>
+  </form>
+</dialog>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+const NAMES={W:"Wanessa",I:"Izadora"};
+const other=w=>w==="W"?"I":"W";
+const TASKS=[
+ {id:"roupas",a:"Roupas",q:"1x por semana",d:"Colocar na máquina, retirar, colocar para secar se necessário, dobrar e guardar.",b:"W"},
+ {id:"banheiro",a:"Lavar banheiro",q:"1x por semana",d:"Lavar vaso, pia, piso e área do banho. Retirar os cabelos do ralo e da caixa do ralo.",b:"I"},
+ {id:"almocos",a:"Almoços da semana",q:"1x por semana",d:"Preparar os almoços combinados e deixar armazenados/organizados para a semana.",b:"W"},
+ {id:"pediragua",a:"Pedir água",q:"Quando necessário",d:"Conferir antes de acabar e realizar o pedido.",b:"I"},
+ {id:"trocaragua",a:"Trocar água da casa",q:"Quando necessário",d:"Retirar o garrafão vazio e colocar o novo.",b:"W"},
+ {id:"areiaracao",a:"Comprar areia e ração",q:"Sábado",d:"Verificar o estoque e comprar antes que acabe.",b:"I"},
+ {id:"cafe",a:"Café da manhã",q:"Todos os dias",d:"Preparar o café da manhã e deixar o que foi utilizado minimamente organizado.",b:"W"},
+ {id:"loucas",a:"Lavar louças",q:"Todos os dias",d:"Pia sem louça acumulada, incluindo panelas, copos e utensílios utilizados.",b:"I"},
+ {id:"pate",a:"Patê dos gatos",q:"Todos os dias",d:"Colocar o patê, recolher os pratos depois e lavá-los.",b:"W"},
+ {id:"areiagatos",a:"Areia dos gatos",q:"Todos os dias",d:"Não é apenas retirar o cocô. Retirar fezes e partes/torrões com xixi. A areia não pode permanecer molhada, saturada ou com cheiro forte. Não deixar a mesma areia por mais de 2 dias. Se estiver ruim antes, trocar antes.",b:"I"},
+ {id:"varrer",a:"Varrer a casa",q:"Todos os dias",d:"Varrer os ambientes, retirando pelos, areia dos gatos e sujeiras visíveis.",b:"W"},
+ {id:"aguagatos",a:"Água dos gatos",q:"Todos os dias",d:"Retirar a água anterior, verificar o recipiente e colocar água limpa.",b:"I"}
+];
+const DAILY=["Sapatos na sapateira","Cama arrumada","Caixa de areia limpa e em boas condições","Comida dos gatos colocada","Água dos gatos limpa"];
+
+/* datas: semanas de segunda a domingo */
+const DAY=86400000;
+const EPOCH=Date.UTC(2024,0,1); // uma segunda-feira
+function weekIdxOf(d){const u=Date.UTC(d.getFullYear(),d.getMonth(),d.getDate());return Math.floor((u-EPOCH)/DAY/7);}
+function mondayOf(idx){return new Date(EPOCH+idx*7*DAY);}
+const START_IDX=weekIdxOf(new Date(2026,9,12)); // semana de 12/10/2026 = semana 1 da rotina
+const fmt=(d,o)=>d.toLocaleDateString("pt-BR",Object.assign({timeZone:"UTC"},o));
+function isoWeek(d){const t=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate()+3));const y=new Date(Date.UTC(t.getUTCFullYear(),0,4));return 1+Math.round(((t-y)/DAY-3+((y.getUTCDay()+6)%7))/7);}
+function weekLabel(idx){const a=mondayOf(idx),b=new Date(a.getTime()+6*DAY);
+  const sameM=a.getUTCMonth()===b.getUTCMonth();
+  return sameM?`${a.getUTCDate()} a ${fmt(b,{day:"numeric",month:"long",year:"numeric"})}`
+    :`${fmt(a,{day:"numeric",month:"long"})} a ${fmt(b,{day:"numeric",month:"long",year:"numeric"})}`;}
+function todayKey(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+
+/* estado */
+function fresh(){const anchors={};TASKS.forEach(t=>anchors[t.id]={w:START_IDX,who:t.b});return {v:1,anchors,overrides:{},log:[],daily:{}};}
+let S=fresh();
+let viewIdx=weekIdxOf(new Date());
+const curIdx=()=>weekIdxOf(new Date());
+
+function autoWho(tid,idx){const a=S.anchors[tid]||{w:START_IDX,who:TASKS.find(t=>t.id===tid).b};
+  const diff=idx-a.w;return (Math.abs(diff)%2===0)?a.who:other(a.who);}
+function whoFor(tid,idx){const o=S.overrides[idx];return (o&&o[tid])||autoWho(tid,idx);}
+
+/* persistência: db compartilhado, com fallback no navegador */
+let db=null,ref=null,readOnly=false,mode="local";
+const LS="rotina-casa-v1";
+function loadLocal(){try{const r=localStorage.getItem(LS);if(r){S=Object.assign(fresh(),JSON.parse(r));}}catch(e){}}
+function saveLocal(){try{localStorage.setItem(LS,JSON.stringify(S));}catch(e){}}
+async function persist(){
+  saveLocal();
+  if(mode==="db"&&ref){
+    try{await ref.set(JSON.parse(JSON.stringify(S)));setSync();}
+    catch(e){if(e&&e.code==="invalid_argument"){readOnly=true;toast("Você só tem acesso de leitura a esta página.");}else toast("Não foi possível salvar agora. Tente de novo.");setSync();}
+  }
+}
+function setSync(){const el=document.getElementById("sync");
+  el.textContent=mode==="db"?(readOnly?"Somente leitura: peça acesso de colaboradora para alterar.":"Sincronizado entre vocês duas."):"As alterações ficam salvas neste navegador.";}
+
+/* render */
+const $=id=>document.getElementById(id);
+function heartSvg(){return `<svg width="26" height="30" viewBox="0 0 26 30" aria-hidden="true"><path d="M13 20 C3 13 2 6 7 4 C10 3 12 5 13 8 C14 5 16 3 19 4 C24 6 23 13 13 20Z" fill="#f2b8ad" stroke="#e07d74" stroke-width="1.8"/><path d="M8 29 C4 26 4 23 6 22 C7.5 21.5 8 22.5 8 23.5 C8.5 22.5 9.5 21.5 11 22.5 C12 24 11 26 8 29Z" fill="#f7cbc8" stroke="#f0a7a6" stroke-width="1.2"/></svg>`;}
+function render(){
+  const cur=curIdx();
+  $("weekRange").textContent=weekLabel(viewIdx);
+  const n=viewIdx-START_IDX+1;
+  const rel=viewIdx===cur?"Semana atual":viewIdx<cur?"Semana passada"+(cur-viewIdx>1?` (há ${cur-viewIdx} semanas)`:""):"Próxima semana"+(viewIdx-cur>1?` (daqui a ${viewIdx-cur} semanas)`:"");
+  $("weekSub").textContent=`${rel}. Semana ${isoWeek(mondayOf(viewIdx))} do ano`+(n>=1?`, semana ${n} da rotina.`:".");
+  const ov=S.overrides[viewIdx]||{};
+  const nOv=Object.keys(ov).length;
+  const logsHere=S.log.filter(l=>l.week===viewIdx).length;
+  const b=$("weekBadge");
+  if(nOv){b.className="badge manual";b.textContent=`${nOv} alteraç${nOv>1?"ões":"ão"} manual${nOv>1?"is":""} nesta semana — veja o registro`;}
+  else if(logsHere){b.className="badge manual";b.textContent=`Rodízio ajustado nesta semana — veja o registro`;}
+  else{b.className="badge auto";b.textContent="Distribuição automática";}
+
+  const tb=$("rows");tb.innerHTML="";
+  TASKS.forEach(t=>{
+    const who=whoFor(t.id,viewIdx);
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td class="act"></td><td class="when"></td><td class="done"></td><td class="resp"><button class="magnet" type="button"></button></td>`;
+    tr.children[0].textContent=t.a;tr.children[1].textContent=t.q;tr.children[2].textContent=t.d;
+    const m=tr.querySelector(".magnet");
+    m.innerHTML=heartSvg()+`<span class="nm"></span>`+heartSvg();
+    m.querySelector(".nm").textContent=NAMES[who];
+    m.setAttribute("aria-label",`${t.a}: ${NAMES[who]}. Alterar responsável`);
+    if(ov[t.id])m.classList.add("changed");
+    m.addEventListener("click",()=>openDlg(t));
+    tb.appendChild(tr);
+  });
+
+  const dk=todayKey(),dd=S.daily[dk]||[];
+  const box=$("daily");box.innerHTML="";
+  DAILY.forEach((txt,i)=>{
+    const l=document.createElement("label");l.className="check";
+    l.innerHTML=`<input type="checkbox"><span class="box"></span><span class="lbl"></span>`;
+    l.querySelector(".lbl").textContent=txt;
+    const inp=l.querySelector("input");inp.checked=!!dd[i];
+    inp.addEventListener("change",()=>{if(readOnly){inp.checked=!inp.checked;return;}
+      const arr=(S.daily[dk]||DAILY.map(()=>0)).slice();arr[i]=inp.checked?1:0;S.daily[dk]=arr;
+      const keys=Object.keys(S.daily).sort();while(keys.length>21){delete S.daily[keys.shift()];}
+      persist();});
+    box.appendChild(l);
+  });
+  $("dailyDate").textContent="Hoje, "+new Date().toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long"})+". Os quadradinhos zeram todo dia.";
+
+  const list=$("logList");list.innerHTML="";
+  $("logCount").textContent=S.log.length?`${S.log.length} registro${S.log.length>1?"s":""}`:"";
+  if(!S.log.length){const li=document.createElement("li");li.className="empty";li.textContent="Nenhuma alteração manual ainda. Toque no nome de uma responsável para alterar.";list.appendChild(li);}
+  S.log.slice().reverse().forEach(l=>{
+    const li=document.createElement("li");if(l.week===viewIdx)li.className="here";
+    const main=document.createElement("div");
+    const task=(TASKS.find(t=>t.id===l.task)||{}).a||l.task;
+    if(l.type==="reset")main.textContent=`${task}: voltou ao automático (${NAMES[l.to]}).`;
+    else main.textContent=`${task}: ${NAMES[l.from]} → ${NAMES[l.to]}`+(l.scope==="rot"?" (rodízio alterado daqui em diante)":" (só nesta semana)")+".";
+    const meta=document.createElement("div");meta.className="log-meta";
+    meta.textContent=`Semana de ${weekLabel(l.week)}. Registrado em ${new Date(l.ts).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"})}.`+(l.reason?` Motivo: ${l.reason}`:"");
+    li.appendChild(main);li.appendChild(meta);list.appendChild(li);
+  });
+  setSync();
+}
+
+/* diálogo */
+let editing=null;
+function openDlg(t){
+  if(readOnly){toast("Você só tem acesso de leitura a esta página.");return;}
+  editing=t;const who=whoFor(t.id,viewIdx);
+  $("dlgTitle").textContent=t.a;
+  $("dlgSub").textContent=`Semana de ${weekLabel(viewIdx)}. Hoje está com ${NAMES[who]}.`;
+  document.querySelector(`#dlg input[name=who][value=${other(who)}]`).checked=true;
+  document.querySelector(`#dlg input[name=scope][value=week]`).checked=true;
+  $("reason").value="";
+  $("resetBtn").hidden=!((S.overrides[viewIdx]||{})[t.id]);
+  $("dlg").showModal();
+}
+$("saveBtn").addEventListener("click",()=>{
+  const t=editing;if(!t)return;
+  const to=document.querySelector("#dlg input[name=who]:checked").value;
+  const scope=document.querySelector("#dlg input[name=scope]:checked").value;
+  const from=whoFor(t.id,viewIdx);
+  if(to===from&&scope==="week"){$("dlg").close();return;}
+  if(scope==="rot"){
+    S.anchors[t.id]={w:viewIdx,who:to};
+    Object.keys(S.overrides).forEach(k=>{if(+k>=viewIdx&&S.overrides[k][t.id]){delete S.overrides[k][t.id];if(!Object.keys(S.overrides[k]).length)delete S.overrides[k];}});
+  }else{
+    const o=S.overrides[viewIdx]||(S.overrides[viewIdx]={});
+    if(to===autoWho(t.id,viewIdx)){delete o[t.id];if(!Object.keys(o).length)delete S.overrides[viewIdx];}else o[t.id]=to;
+  }
+  S.log.push({ts:Date.now(),week:viewIdx,task:t.id,from,to,scope,type:"change",reason:$("reason").value.trim().slice(0,200)});
+  $("dlg").close();render();persist();toast("Alteração salva e registrada.");
+});
+$("resetBtn").addEventListener("click",()=>{
+  const t=editing;const o=S.overrides[viewIdx];if(!o||!o[t.id])return;
+  delete o[t.id];if(!Object.keys(o).length)delete S.overrides[viewIdx];
+  S.log.push({ts:Date.now(),week:viewIdx,task:t.id,from:null,to:autoWho(t.id,viewIdx),type:"reset",reason:$("reason").value.trim().slice(0,200)});
+  $("dlg").close();render();persist();toast("Voltou ao automático.");
+});
+
+$("prevW").addEventListener("click",()=>{viewIdx--;render();});
+$("nextW").addEventListener("click",()=>{viewIdx++;render();});
+$("todayW").addEventListener("click",()=>{viewIdx=curIdx();render();});
+
+let tt;function toast(m){const el=$("toast");el.textContent=m;el.classList.add("show");clearTimeout(tt);tt=setTimeout(()=>el.classList.remove("show"),2600);}
+
+/* virada de semana com a página aberta */
+let lastCur=curIdx();
+setInterval(()=>{const c=curIdx();if(c!==lastCur){if(viewIdx===lastCur)viewIdx=c;lastCur=c;render();}},60000);
+
+loadLocal();render();
+
+})();
+</script>
+</body>
+</html>
