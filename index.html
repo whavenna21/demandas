@@ -295,7 +295,7 @@ textarea{width:100%;font:inherit;font-size:15px;border:1.5px solid var(--line);b
     <ul class="log-list" id="logList"></ul>
   </div>
 </details>
-<p class="sync" id="sync"></p>
+<p class="sync" id="sync">Conectando…</p>
 </div>
 
 <dialog id="dlg">
@@ -320,8 +320,19 @@ textarea{width:100%;font:inherit;font-size:15px;border:1.5px solid var(--line);b
 </dialog>
 <div class="toast" id="toast" role="status"></div>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
 (function(){
+const firebaseConfig = {
+  apiKey: "AIzaSyBqUkpW0sUSrP9RgKAKGjT-9apaVis_G2c",
+  authDomain: "rotina-da-casa-9858f.firebaseapp.com",
+  projectId: "rotina-da-casa-9858f",
+  storageBucket: "rotina-da-casa-9858f.firebasestorage.app",
+  messagingSenderId: "706941062518",
+  appId: "1:706941062518:web:9217ff6e633c4d170a3e57"
+};
+
 const NAMES={W:"Wanessa",I:"Izadora"};
 const other=w=>w==="W"?"I":"W";
 const TASKS=[
@@ -349,35 +360,43 @@ const START_IDX=weekIdxOf(new Date(2026,9,12)); // semana de 12/10/2026 = semana
 const fmt=(d,o)=>d.toLocaleDateString("pt-BR",Object.assign({timeZone:"UTC"},o));
 function isoWeek(d){const t=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate()+3));const y=new Date(Date.UTC(t.getUTCFullYear(),0,4));return 1+Math.round(((t-y)/DAY-3+((y.getUTCDay()+6)%7))/7);}
 function weekLabel(idx){const a=mondayOf(idx),b=new Date(a.getTime()+6*DAY);
-  const sameM=a.getUTCMonth()===b.getUTCMonth();
-  return sameM?`${a.getUTCDate()} a ${fmt(b,{day:"numeric",month:"long",year:"numeric"})}`
+  return a.getUTCMonth()===b.getUTCMonth()?`${a.getUTCDate()} a ${fmt(b,{day:"numeric",month:"long",year:"numeric"})}`
     :`${fmt(a,{day:"numeric",month:"long"})} a ${fmt(b,{day:"numeric",month:"long",year:"numeric"})}`;}
 function todayKey(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
 
 /* estado */
 function fresh(){const anchors={};TASKS.forEach(t=>anchors[t.id]={w:START_IDX,who:t.b});return {v:1,anchors,overrides:{},log:[],daily:{}};}
+function normalize(d){const f=fresh();d=d||{};
+  return {v:1,anchors:Object.assign(f.anchors,d.anchors||{}),overrides:d.overrides||{},log:Array.isArray(d.log)?d.log:[],daily:d.daily||{}};}
 let S=fresh();
 let viewIdx=weekIdxOf(new Date());
 const curIdx=()=>weekIdxOf(new Date());
 
-function autoWho(tid,idx){const a=S.anchors[tid]||{w:START_IDX,who:TASKS.find(t=>t.id===tid).b};
-  const diff=idx-a.w;return (Math.abs(diff)%2===0)?a.who:other(a.who);}
-function whoFor(tid,idx){const o=S.overrides[idx];return (o&&o[tid])||autoWho(tid,idx);}
+function autoWho(st,tid,idx){const a=st.anchors[tid]||{w:START_IDX,who:TASKS.find(t=>t.id===tid).b};
+  return (Math.abs(idx-a.w)%2===0)?a.who:other(a.who);}
+function whoFor(st,tid,idx){const o=st.overrides[idx];return (o&&o[tid])||autoWho(st,tid,idx);}
 
-/* persistência: db compartilhado, com fallback no navegador */
-let db=null,ref=null,readOnly=false,mode="local";
+/* persistência: Firestore compartilhado + cópia local */
 const LS="rotina-casa-v1";
-function loadLocal(){try{const r=localStorage.getItem(LS);if(r){S=Object.assign(fresh(),JSON.parse(r));}}catch(e){}}
+let ref=null,online=false;
+function loadLocal(){try{const r=localStorage.getItem(LS);if(r)S=normalize(JSON.parse(r));}catch(e){}}
 function saveLocal(){try{localStorage.setItem(LS,JSON.stringify(S));}catch(e){}}
-async function persist(){
-  saveLocal();
-  if(mode==="db"&&ref){
-    try{await ref.set(JSON.parse(JSON.stringify(S)));setSync();}
-    catch(e){if(e&&e.code==="invalid_argument"){readOnly=true;toast("Você só tem acesso de leitura a esta página.");}else toast("Não foi possível salvar agora. Tente de novo.");setSync();}
-  }
+function setSync(msg){$("sync").textContent=msg||(online?"Sincronizado entre todas.":"Sem conexão com o banco. As alterações ficam neste aparelho até reconectar.");}
+
+/* cada alteração é aplicada numa transação sobre a versão mais recente do banco,
+   assim duas pessoas mexendo ao mesmo tempo não apagam a alteração uma da outra */
+async function mutate(fn){
+  fn(S);saveLocal();render();
+  if(!ref)return;
+  try{
+    await firebase.firestore().runTransaction(async tx=>{
+      const snap=await tx.get(ref);
+      const base=normalize(snap.exists?snap.data():null);
+      fn(base);
+      tx.set(ref,JSON.parse(JSON.stringify(base)));
+    });
+  }catch(e){console.error(e);toast("Não foi possível salvar no banco. Confira a internet e tente de novo.");}
 }
-function setSync(){const el=document.getElementById("sync");
-  el.textContent=mode==="db"?(readOnly?"Somente leitura: peça acesso de colaboradora para alterar.":"Sincronizado entre vocês duas."):"As alterações ficam salvas neste navegador.";}
 
 /* render */
 const $=id=>document.getElementById(id);
@@ -393,12 +412,12 @@ function render(){
   const logsHere=S.log.filter(l=>l.week===viewIdx).length;
   const b=$("weekBadge");
   if(nOv){b.className="badge manual";b.textContent=`${nOv} alteraç${nOv>1?"ões":"ão"} manual${nOv>1?"is":""} nesta semana — veja o registro`;}
-  else if(logsHere){b.className="badge manual";b.textContent=`Rodízio ajustado nesta semana — veja o registro`;}
+  else if(logsHere){b.className="badge manual";b.textContent="Rodízio ajustado nesta semana — veja o registro";}
   else{b.className="badge auto";b.textContent="Distribuição automática";}
 
   const tb=$("rows");tb.innerHTML="";
   TASKS.forEach(t=>{
-    const who=whoFor(t.id,viewIdx);
+    const who=whoFor(S,t.id,viewIdx);
     const tr=document.createElement("tr");
     tr.innerHTML=`<td class="act"></td><td class="when"></td><td class="done"></td><td class="resp"><button class="magnet" type="button"></button></td>`;
     tr.children[0].textContent=t.a;tr.children[1].textContent=t.q;tr.children[2].textContent=t.d;
@@ -418,10 +437,9 @@ function render(){
     l.innerHTML=`<input type="checkbox"><span class="box"></span><span class="lbl"></span>`;
     l.querySelector(".lbl").textContent=txt;
     const inp=l.querySelector("input");inp.checked=!!dd[i];
-    inp.addEventListener("change",()=>{if(readOnly){inp.checked=!inp.checked;return;}
-      const arr=(S.daily[dk]||DAILY.map(()=>0)).slice();arr[i]=inp.checked?1:0;S.daily[dk]=arr;
-      const keys=Object.keys(S.daily).sort();while(keys.length>21){delete S.daily[keys.shift()];}
-      persist();});
+    inp.addEventListener("change",()=>{const val=inp.checked?1:0;
+      mutate(st=>{const arr=(st.daily[dk]||DAILY.map(()=>0)).slice();arr[i]=val;st.daily[dk]=arr;
+        const keys=Object.keys(st.daily).sort();while(keys.length>21)delete st.daily[keys.shift()];});});
     box.appendChild(l);
   });
   $("dailyDate").textContent="Hoje, "+new Date().toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long"})+". Os quadradinhos zeram todo dia.";
@@ -439,14 +457,12 @@ function render(){
     meta.textContent=`Semana de ${weekLabel(l.week)}. Registrado em ${new Date(l.ts).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"})}.`+(l.reason?` Motivo: ${l.reason}`:"");
     li.appendChild(main);li.appendChild(meta);list.appendChild(li);
   });
-  setSync();
 }
 
 /* diálogo */
 let editing=null;
 function openDlg(t){
-  if(readOnly){toast("Você só tem acesso de leitura a esta página.");return;}
-  editing=t;const who=whoFor(t.id,viewIdx);
+  editing=t;const who=whoFor(S,t.id,viewIdx);
   $("dlgTitle").textContent=t.a;
   $("dlgSub").textContent=`Semana de ${weekLabel(viewIdx)}. Hoje está com ${NAMES[who]}.`;
   document.querySelector(`#dlg input[name=who][value=${other(who)}]`).checked=true;
@@ -459,23 +475,30 @@ $("saveBtn").addEventListener("click",()=>{
   const t=editing;if(!t)return;
   const to=document.querySelector("#dlg input[name=who]:checked").value;
   const scope=document.querySelector("#dlg input[name=scope]:checked").value;
-  const from=whoFor(t.id,viewIdx);
-  if(to===from&&scope==="week"){$("dlg").close();return;}
-  if(scope==="rot"){
-    S.anchors[t.id]={w:viewIdx,who:to};
-    Object.keys(S.overrides).forEach(k=>{if(+k>=viewIdx&&S.overrides[k][t.id]){delete S.overrides[k][t.id];if(!Object.keys(S.overrides[k]).length)delete S.overrides[k];}});
-  }else{
-    const o=S.overrides[viewIdx]||(S.overrides[viewIdx]={});
-    if(to===autoWho(t.id,viewIdx)){delete o[t.id];if(!Object.keys(o).length)delete S.overrides[viewIdx];}else o[t.id]=to;
-  }
-  S.log.push({ts:Date.now(),week:viewIdx,task:t.id,from,to,scope,type:"change",reason:$("reason").value.trim().slice(0,200)});
-  $("dlg").close();render();persist();toast("Alteração salva e registrada.");
+  const reason=$("reason").value.trim().slice(0,200);
+  const w=viewIdx,ts=Date.now();
+  if(to===whoFor(S,t.id,w)&&scope==="week"){$("dlg").close();return;}
+  $("dlg").close();
+  mutate(st=>{
+    const from=whoFor(st,t.id,w);
+    if(scope==="rot"){
+      st.anchors[t.id]={w,who:to};
+      Object.keys(st.overrides).forEach(k=>{if(+k>=w&&st.overrides[k][t.id]){delete st.overrides[k][t.id];if(!Object.keys(st.overrides[k]).length)delete st.overrides[k];}});
+    }else{
+      const o=st.overrides[w]||(st.overrides[w]={});
+      if(to===autoWho(st,t.id,w)){delete o[t.id];if(!Object.keys(o).length)delete st.overrides[w];}else o[t.id]=to;
+    }
+    if(!st.log.some(l=>l.ts===ts&&l.task===t.id))st.log.push({ts,week:w,task:t.id,from,to,scope,type:"change",reason});
+  });
+  toast("Alteração salva e registrada.");
 });
 $("resetBtn").addEventListener("click",()=>{
-  const t=editing;const o=S.overrides[viewIdx];if(!o||!o[t.id])return;
-  delete o[t.id];if(!Object.keys(o).length)delete S.overrides[viewIdx];
-  S.log.push({ts:Date.now(),week:viewIdx,task:t.id,from:null,to:autoWho(t.id,viewIdx),type:"reset",reason:$("reason").value.trim().slice(0,200)});
-  $("dlg").close();render();persist();toast("Voltou ao automático.");
+  const t=editing;const w=viewIdx,ts=Date.now();const reason=$("reason").value.trim().slice(0,200);
+  $("dlg").close();
+  mutate(st=>{const o=st.overrides[w];if(!o||!o[t.id])return;
+    delete o[t.id];if(!Object.keys(o).length)delete st.overrides[w];
+    if(!st.log.some(l=>l.ts===ts&&l.task===t.id))st.log.push({ts,week:w,task:t.id,from:null,to:autoWho(st,t.id,w),scope:"week",type:"reset",reason});});
+  toast("Voltou ao automático.");
 });
 
 $("prevW").addEventListener("click",()=>{viewIdx--;render();});
@@ -484,9 +507,9 @@ $("todayW").addEventListener("click",()=>{viewIdx=curIdx();render();});
 
 let tt;function toast(m){const el=$("toast");el.textContent=m;el.classList.add("show");clearTimeout(tt);tt=setTimeout(()=>el.classList.remove("show"),2600);}
 
-/* virada de semana com a página aberta */
-let lastCur=curIdx();
-setInterval(()=>{const c=curIdx();if(c!==lastCur){if(viewIdx===lastCur)viewIdx=c;lastCur=c;render();}},60000);
+/* virada de semana/dia com a página aberta */
+let lastCur=curIdx(),lastDay=todayKey();
+setInterval(()=>{const c=curIdx(),d=todayKey();if(c!==lastCur||d!==lastDay){if(viewIdx===lastCur)viewIdx=c;lastCur=c;lastDay=d;render();}},60000);
 
 /* tema */
 function applyTheme(t){
@@ -500,8 +523,25 @@ document.querySelectorAll(".theme button").forEach(b=>b.addEventListener("click"
   tema=b.dataset.t;try{localStorage.setItem("rotina-tema",tema);}catch(e){}applyTheme(tema);
 }));
 
-loadLocal();render();
+loadLocal();render();setSync("Conectando ao banco…");
 
+/* conexão com o Firestore */
+try{
+  if(!window.firebase)throw new Error("Firebase não carregou");
+  firebase.initializeApp(firebaseConfig);
+  ref=firebase.firestore().doc("rotina/estado");
+  ref.onSnapshot({includeMetadataChanges:true},snap=>{
+    online=!snap.metadata.fromCache;
+    if(snap.exists){S=normalize(snap.data());saveLocal();render();}
+    else if(online){mutate(()=>{});} // primeira vez: cria o documento no banco
+    setSync();
+  },err=>{
+    console.error(err);online=false;
+    setSync(err.code==="permission-denied"
+      ?"O banco recusou o acesso. Confira se as regras do Firestore foram publicadas."
+      :"Sem conexão com o banco. As alterações ficam neste aparelho até reconectar.");
+  });
+}catch(e){console.error(e);setSync("Não foi possível carregar o Firebase. Verifique a internet e recarregue a página.");}
 })();
 </script>
 </body>
